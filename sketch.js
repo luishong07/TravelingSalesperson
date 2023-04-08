@@ -1,91 +1,75 @@
 let locations = [];
-let totalLocations = 10;
+let totalLocations = 4;
 let bestEver;
 let recordDistance = 0;
-
-let values = [0, 1, 2, 3,4,5];
+let count = 0
+let totalPermutations 
+// let values = [0, 1, 2, 3,4,5];
+let order = [];
 function setup() {
     createCanvas(innerWidth, innerHeight);
-    // put setup code here
-    // for (let i = 0; i < totalLocations; i++) {
-    //     let vector = createVector(random(width), random(height));
-    //     locations[i] = vector;
-    // }
+    for (let i = 0; i < totalLocations; i++) {
+        let vector = createVector(random(width), random(height/2));
+        locations[i] = vector;
+        order[i] = i;
+    }
 
-    // let d = calculateDistance(locations);
-    // recordDistance = d;
-    // bestEver = locations.slice()
+    let d = calculateDistance(locations,order);
+    recordDistance = d;
+    bestEver = locations.slice();
+
+    totalPermutations = factorial(totalLocations)
+    console.log(totalPermutations)
+
 }
 
 function draw() {
     background("black");
-    console.log(values);
 
-    let largestI = -1;
-    for (let i = 0; i < values.length; i++) {
-        if (values[i] < values[i + 1]) {
-            largestI = i;
-        }
+    fill(255);
+    for (let i = 0; i < locations.length; i++) {
+        ellipse(locations[i].x, locations[i].y, 10, 10);
     }
-    if (largestI == -1) {
-        noLoop();
-        console.log("done");
+
+    stroke(255);
+    strokeWeight(2);
+    noFill();
+    beginShape();
+    for (let i = 0; i < order.length; i++) {
+        vertex(locations[i].x, locations[i].y);
     }
-    let largestJ = -1;
-    for (let j = 0; j < values.length; j++) {
-        if (values[largestI] < values[j]) {
-            largestJ = j;
-        }
+    endShape();
+
+    translate(0, height / 2);
+    stroke("red");
+    strokeWeight(2);
+    noFill();
+    beginShape();
+    for (let i = 0; i < order.length; i++) {
+        let n = order[i];
+        vertex(locations[n].x, locations[n].y);
     }
-    swap(values, largestI, largestJ);
+    endShape();
 
-    // let len = values.length - largestI - 1
-    let endArray = values.splice(largestI + 1);
-    endArray.reverse();
-    values = values.concat(endArray);
 
-    textSize(64)
-    let s = ''
-    for(let i = 0; i < values.length; i++){
-        s+=values[i]
+
+    let d = calculateDistance(locations, order);
+    if (d < recordDistance) {
+        recordDistance = d;
+        bestEver = order.slice();
+        // console.log(recordDistance);
     }
-    fill(255)
-    text(s, 20, height/2)
 
-    // put drawing code here
-    // fill(255);
-    // for (let i = 0; i < locations.length; i++) {
-    //     ellipse(locations[i].x, locations[i].y, 10, 10);
+    textSize(32);
+    // var s = '';
+    // for (var i = 0; i < order.length; i++) {
+    //   s += order[i];
     // }
-
-    // stroke(255);
-    // strokeWeight(2);
-    // noFill();
-    // beginShape();
-    // for (let i = 0; i < locations.length; i++) {
-    //     vertex(locations[i].x, locations[i].y);
-    // }
-    // endShape();
-
-    // stroke("red");
-    // strokeWeight(2);
-    // noFill();
-    // beginShape();
-    // for (let i = 0; i < bestEver.length; i++) {
-    //     vertex(bestEver[i].x, bestEver[i].y);
-    // }
-    // endShape();
-
-    // let i = floor(random(locations.length));
-    // let j = floor(random(locations.length));
-    // swap(locations, i, j);
-
-    // let d = calculateDistance(locations);
-    // if (d < recordDistance) {
-    //     recordDistance = d;
-    // 	bestEver = locations.slice()
-    //     console.log(recordDistance);
-    // }
+    fill(255);
+    var percent = 100 * (count / totalPermutations);
+    text(nf(percent, 0, 2) + "% completed", 20, height / 2 - 50);
+  
+    nextOrder();
 }
 
 function swap(arr, i, j) {
@@ -94,17 +78,50 @@ function swap(arr, i, j) {
     arr[j] = temp;
 }
 
-function calculateDistance(points) {
+function calculateDistance(points,order) {
     let sum = 0;
 
-    for (let i = 0; i < points.length - 1; i++) {
-        let d = dist(
-            points[i].x,
-            points[i].y,
-            points[i + 1].x,
-            points[i + 1].y
-        );
+    for (var i = 0; i < order.length - 1; i++) {
+        var cityAIndex = order[i];
+        var cityA = points[cityAIndex];
+        var cityBIndex = order[i + 1];
+        var cityB = points[cityBIndex];
+        var d = dist(cityA.x, cityA.y, cityB.x, cityB.y);
         sum += d;
     }
     return sum;
+}
+
+function nextOrder() {
+    count++
+    let largestI = -1;
+    for (let i = 0; i < order.length; i++) {
+        if (order[i] < order[i + 1]) {
+            largestI = i;
+        }
+    }
+    if (largestI == -1) {
+        noLoop();
+        console.log("done");
+    }
+
+    let largestJ = -1;
+    for (let j = 0; j < order.length; j++) {
+        if (order[largestI] < order[j]) {
+            largestJ = j;
+        }
+    }
+
+    swap(order, largestI, largestJ);
+
+    let endArray = order.splice(largestI + 1);
+    endArray.reverse();
+    order = order.concat(endArray);
+}
+function factorial(n) {
+  if (n == 1) {
+    return 1;
+  } else {
+    return n * factorial(n - 1);
+  }
 }
