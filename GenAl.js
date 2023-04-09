@@ -11,9 +11,7 @@ function calculateFitness() {
             currentBest = population[i];
         }
 
-        // This fitness function has been edited from the original video
-        // to improve performance, as discussed in The Nature of Code 9.6 video,
-        // available here: https://www.youtube.com/watch?v=HzaLIO9dLbA
+        
         fitness[i] = 1 / (pow(d, 8) + 1);
     }
 }
